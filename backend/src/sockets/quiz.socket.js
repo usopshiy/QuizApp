@@ -211,10 +211,13 @@ function initSocketServer(httpServer) {
         const now          = new Date();
 
         await db.query(
-          `UPDATE sessions
-           SET status = 'question', current_question_index = $1, question_started_at = $2
-           WHERE id = $3`,
-          [nextIndex, now, sessionId]
+        `UPDATE sessions
+          SET status = 'question',
+          current_question_index = $1,
+          question_started_at = $2,
+          started_at = COALESCE(started_at, $2)
+          WHERE id = $3`,
+        [nextIndex, now, sessionId]
         );
 
         io.to(sessionId).emit('session:question', {
@@ -292,6 +295,8 @@ function initSocketServer(httpServer) {
         }
 
         socket.emit('answer:received', { isCorrect, pointsAwarded });
+
+        socket.to(sessionId).emit('answer:submitted', { participantId });
       } catch (err) {
         socket.emit('error', { message: err.message });
       }

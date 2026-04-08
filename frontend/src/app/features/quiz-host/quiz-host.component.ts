@@ -281,7 +281,7 @@ export class QuizHostComponent implements OnInit, OnDestroy {
     );
 
     this.subs.add(
-      this.socket.onAnswerReceived().subscribe(() => {
+      this.socket.onAnswerSubmitted().subscribe(() => {
         this.answeredCount++;
       })
     );

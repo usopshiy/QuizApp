@@ -102,6 +102,9 @@ export class SocketService implements OnDestroy {
   }
 
   // Observable listeners
+  onAnswerSubmitted(): Observable<{ participantId: string }> {
+    return this.fromEvent('answer:submitted');
+  }
 
   onParticipantJoined(): Observable<ParticipantJoinedEvent> {
     return this.fromEvent('session:participantJoined');
