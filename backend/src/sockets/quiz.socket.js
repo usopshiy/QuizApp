@@ -75,7 +75,7 @@ function initSocketServer(httpServer) {
           `SELECT s.id AS session_id, s.status, q.id AS quiz_id
            FROM sessions s
            JOIN quizzes q ON q.id = s.quiz_id
-           WHERE q.join_code = $1 AND s.status = 'waiting'`,
+           WHERE q.join_code = $1 AND s.status IN ('waiting', 'question', 'results')`,
           [joinCode.toUpperCase()]
         );
 
@@ -103,7 +103,7 @@ function initSocketServer(httpServer) {
             socket.join(sessionId);
             socket.data = { role: 'participant', sessionId, participantId: participant.id, userId };
 
-            return socket.emit('session:rejoined', { participant });
+            return socket.emit('session:rejoined', { participant, sessionId });
           }
         }
 
@@ -125,19 +125,48 @@ function initSocketServer(httpServer) {
         } catch {
           return socket.emit('error', { message: 'Display name already taken in this session' });
         }
-
+        
         socket.join(sessionId);
         socket.data = { role: 'participant', sessionId, participantId: participant.id, userId };
 
-        io.to(sessionId).emit('session:participantJoined', { participant });
+        io.to(sessionId).emit('session:participantJoined', { participant, sessionId });
 
         console.log(
           `👤 ${displayName.trim()} joined session ${sessionId}` +
           (userId ? ` (user: ${userId})` : ' (anonymous)')
         );
-      } catch (err) {
+
+        const { rows: sessionState } = await db.query(
+          'SELECT * FROM sessions WHERE id = $1', [sessionId]
+        );
+        const currentSession = sessionState[0];
+
+        if (currentSession.status !== 'waiting') {
+          const { rows: questions } = await db.query(
+            `SELECT q.*, json_agg(
+              json_build_object('id', o.id, 'body', o.body, 'position', o.position)
+              ORDER BY o.position
+            ) AS options
+            FROM questions q
+            LEFT JOIN question_options o ON o.question_id = q.id
+            WHERE q.quiz_id = $1
+            GROUP BY q.id ORDER BY q.position`,
+          [currentSession.quiz_id]
+          );
+          const idx = currentSession.current_question_index;
+          if (idx !== null && questions[idx]) {
+            socket.emit('session:question', {
+              index:          idx,
+              totalQuestions: questions.length,
+              timeLimitSec:   null, // don't start timer for late joiners
+              question:       sanitizeQuestion(questions[idx]),
+            });
+          }
+        }
+      }   catch (err) {
         socket.emit('error', { message: err.message });
       }
+      
     });
 
     // HOST: advance to next question

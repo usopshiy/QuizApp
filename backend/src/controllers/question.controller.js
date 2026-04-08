@@ -5,7 +5,7 @@ const { uploadImage, deleteImage } = require('../services/minio.service');
 async function createQuestion(req, res, next) {
   try {
     const { quizId } = req.params;
-    const { type = 'single', body, timeLimitSec, points, options } = req.body;
+    const { type = 'single', body, timeLimitSec, points } = req.body;
 
     // Ownership check
     const { rows: quiz } = await db.query(
@@ -22,6 +22,17 @@ async function createQuestion(req, res, next) {
 
     if (!body && !imageUrl) {
       return res.status(400).json({ error: 'Question must have a body text or an image' });
+    }
+
+    // Parse options
+
+    let { options } = req.body;
+    if (typeof options === 'string') {
+      try {
+        options = JSON.parse(options);
+      } catch (error) {
+        return res.status(400).json({ error: 'Invalid format for options' });
+      }
     }
 
     // Validate options
@@ -49,7 +60,7 @@ async function createQuestion(req, res, next) {
       `INSERT INTO questions (quiz_id, type, body, image_url, position, time_limit_sec, points)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [quizId, type, body || null, imageUrl, position, timeLimitSec || null, points || 100]
+      [quizId, type, body || null, imageUrl, position, timeLimitSec || null, parseInt(points) || 100]
     );
     const question = qRows[0];
 

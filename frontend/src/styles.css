@@ -1,0 +1,40 @@
+/* PrimeNG 17 theme + core */
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/primeng.css";
+@import "primeicons/primeicons.css";
+
+/* Reset & base */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Utility classes used across components */
+.w-full  { width: 100%; }
+.flex-1  { flex: 1; }
+.mt-2    { margin-top: 0.5rem; }
+.mt-4    { margin-top: 1rem; }
+.mb-2    { margin-bottom: 0.5rem; }
+.mb-4    { margin-bottom: 1rem; }
+.ml-2    { margin-left: 0.5rem; }
+.p-error { color: var(--red-500); font-size: 0.8rem; margin-top: 0.25rem; display: block; }
+
+/* PrimeNG overrides */
+p-password .p-password        { width: 100%; }
+p-password .p-password input  { width: 100%; }
+
+.question-order-list .p-orderlist-list {
+  min-height: unset !important;
+}
+
+.leaderboard-table .p-datatable-tbody > tr > td {
+  padding: 0.6rem 0.75rem;
+}

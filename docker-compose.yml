@@ -90,6 +90,7 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minio_admin}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minio_password}
       MINIO_BUCKET: ${MINIO_BUCKET:-quiz-images}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-https://localhost:9000}
       # Auth
       JWT_SECRET: ${JWT_SECRET:-jwt_secert}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
@@ -101,18 +102,18 @@ services:
       - ./backend:/app
       - /app/node_modules
 
-#  frontend:
-#    build:
-#      context: ./frontend
-#      dockerfile: Dockerfile
-#    container_name: quiz_frontend
-#    restart: unless-stopped
-#    depends_on:
-#      - backend
-#    ports:
-#      - "4200:80"
-#    networks:
-#      - quiz_network
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: quiz_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+    networks:
+      - quiz_network
 
 networks:
   quiz_network:

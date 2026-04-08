@@ -66,12 +66,8 @@ async function presignedPutUrl(filename, mimetype) {
 // Helpers
 
 function buildPublicUrl(objectName) {
-  const endpoint = process.env.MINIO_ENDPOINT || 'minio';
-  const port     = process.env.MINIO_PORT     || '9000';
-  const ssl      = process.env.MINIO_USE_SSL === 'true';
-  const protocol = ssl ? 'https' : 'http';
-
-  return `${protocol}://${endpoint}:${port}/${BUCKET}/${objectName}`;
+  const publicHost = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
+  return `${publicHost}/${BUCKET}/${objectName}`;
 }
 
 function extractObjectName(urlOrObjectName) {

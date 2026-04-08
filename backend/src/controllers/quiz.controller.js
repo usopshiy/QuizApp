@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const { nanoid } = require('nanoid');
+const { randomBytes } = require('crypto');
 
 // List organizer's quizzes
 async function listQuizzes(req, res, next) {
@@ -65,7 +65,7 @@ async function createQuiz(req, res, next) {
     }
 
     // Generate unique 6-char alphanumeric join code
-    const joinCode = nanoid(6).toUpperCase();
+    const joinCode = randomBytes(3).toString('hex').toUpperCase(); // always 6 chars
 
     const { rows } = await db.query(
       `INSERT INTO quizzes (owner_id, title, description, join_code, default_time_limit_sec)
