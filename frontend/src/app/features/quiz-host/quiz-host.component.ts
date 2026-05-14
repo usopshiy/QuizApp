@@ -281,8 +281,16 @@ export class QuizHostComponent implements OnInit, OnDestroy {
     );
 
     this.subs.add(
-      this.socket.onAnswerSubmitted().subscribe(() => {
+      this.socket.onAnswerSubmitted().subscribe((e: any) => {
+        console.log(e);
+        console.log(typeof e.submitTime);
+        console.log(`latency: ${Date.now() - e.submitTime} ms`);
         this.answeredCount++;
+
+        requestAnimationFrame(() => {
+          const latency = Date.now() - e.submitTime;
+          console.log(`E2E render latency: ${latency} ms`);
+        });
       })
     );
 

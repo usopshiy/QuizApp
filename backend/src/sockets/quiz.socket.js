@@ -244,7 +244,7 @@ function initSocketServer(httpServer) {
     });
 
     // PARTICIPANT: submit answer
-    socket.on('participant:answer', async ({ sessionId, questionId, optionIds }) => {
+    socket.on('participant:answer', async ({ sessionId, questionId, optionIds, submitTime }) => {
       try {
         const { participantId } = socket.data || {};
         if (!participantId) {
@@ -296,7 +296,10 @@ function initSocketServer(httpServer) {
 
         socket.emit('answer:received', { isCorrect, pointsAwarded });
 
-        socket.to(sessionId).emit('answer:submitted', { participantId });
+        const receiveTime = Date.now();
+        const latency = receiveTime - submitTime;
+        console.log(`latency: ${latency} ms`);
+        socket.to(sessionId).emit('answer:submitted', { participantId, submitTime });
       } catch (err) {
         socket.emit('error', { message: err.message });
       }

@@ -294,10 +294,13 @@ export class PlayComponent implements OnInit, OnDestroy {
   submitAnswer(): void {
     if (this.answered || !this.currentQuestion) return;
     this.answered = true;
+    const submitTime = Date.now();
+    console.log(submitTime);
     this.socket.submitAnswer(
       this.sessionId,
       this.currentQuestion.question.id,
-      Array.from(this.selectedIds)
+      Array.from(this.selectedIds),
+      submitTime
     );
   }
 

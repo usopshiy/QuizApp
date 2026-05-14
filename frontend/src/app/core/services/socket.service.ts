@@ -97,12 +97,12 @@ export class SocketService implements OnDestroy {
     this.socket.emit('host:end', { sessionId });
   }
 
-  submitAnswer(sessionId: string, questionId: string, optionIds: string[]): void {
-    this.socket.emit('participant:answer', { sessionId, questionId, optionIds });
+  submitAnswer(sessionId: string, questionId: string, optionIds: string[], submitTime?: number): void {
+    this.socket.emit('participant:answer', { sessionId, questionId, optionIds, submitTime });
   }
 
   // Observable listeners
-  onAnswerSubmitted(): Observable<{ participantId: string }> {
+  onAnswerSubmitted(): Observable<{ participantId: string, submitTime: number }> {
     return this.fromEvent('answer:submitted');
   }
 
